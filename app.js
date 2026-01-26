@@ -1,8 +1,10 @@
 const express = require("express");
+require('dotenv').config();
 const path = require("path");
 const sessionMiddleware = require("./config/session");
 const authRoutes = require("./routes/authRoutes");
 const requireAuth = require("./middleware/requireAuth");
+const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 
@@ -24,7 +26,7 @@ app.use((req, res, next) => {
 
 // routes
 app.use(authRoutes);
-
+app.use('/search', searchRoutes);
 // protected home
 app.get("/", requireAuth, (req, res) => {
     res.render("home", { user: req.session.user });
