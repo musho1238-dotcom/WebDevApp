@@ -30,7 +30,7 @@ class AuthController {
 
             req.session.user = { id: user.id, email: user.email, fullName: user.fullName };
 
-            res.redirect("/");
+            res.redirect("/search");
         } catch (err) {
             res.status(400).render("login", { error: err.message });
         }
