@@ -5,6 +5,7 @@ const sessionMiddleware = require("./config/session");
 const authRoutes = require("./routes/authRoutes");
 const requireAuth = require("./middleware/requireAuth");
 const searchRoutes = require('./routes/searchRoutes');
+const favoritesRoutes = require('./routes/favoritesRoutes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 // routes
 app.use(authRoutes);
 app.use('/search', searchRoutes);
+app.use('/favorites', favoritesRoutes);
 // protected home
 app.get("/", requireAuth, (req, res) => {
     res.render("home", { user: req.session.user });
