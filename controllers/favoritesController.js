@@ -1,3 +1,5 @@
+const db = require('../config/db');
+
 exports.addFavorite = (req, res) => {
     const { videoId, title, thumbnailUrl } = req.body;
     const userId = req.session.userId;
@@ -6,7 +8,6 @@ exports.addFavorite = (req, res) => {
         return res.redirect('/login');
     }
 
-    // שלב 1: בדיקה האם הסרטון כבר קיים
     const checkQuery = "SELECT id FROM Favorites WHERE userId = ? AND videoId = ?";
 
     db.get(checkQuery, [userId, videoId], (err, row) => {
@@ -15,13 +16,11 @@ exports.addFavorite = (req, res) => {
             return res.redirect('/search');
         }
 
-        // אם נמצאה שורה (row קיים), סימן שהסרטון כבר במועדפים
         if (row) {
             console.log("Video already in favorites, skipping insert.");
             return res.redirect('/search');
         }
 
-        // שלב 2: אם לא נמצא (else), מבצעים את ההוספה
         const insertQuery = `
             INSERT INTO Favorites (userId, videoId, title, thumbnailUrl)
             VALUES (?, ?, ?, ?)
@@ -33,5 +32,19 @@ exports.addFavorite = (req, res) => {
             }
             res.redirect('/search');
         });
+    });
+};
+
+exports.removeFavorite = (req, res) => {
+    const { id } = req.body;
+    const userId = req.session.userId;
+
+    const query = `DELETE FROM Favorites WHERE id = ? AND userId = ?`;
+
+    db.run(query, [id, userId], function (err) {
+        if (err) {
+            console.error("Error removing favorite:", err.message);
+        }
+        res.redirect('/search');
     });
 };
