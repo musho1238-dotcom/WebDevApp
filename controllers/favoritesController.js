@@ -1,5 +1,3 @@
-const db = require('../config/db');
-
 exports.addFavorite = (req, res) => {
     const { videoId, title, thumbnailUrl } = req.body;
     const userId = req.session.userId;
@@ -8,30 +6,32 @@ exports.addFavorite = (req, res) => {
         return res.redirect('/login');
     }
 
-    const query = `
-        INSERT INTO Favorites (userId, videoId, title, thumbnailUrl)
-        VALUES (?, ?, ?, ?)
-    `;
+    // שלב 1: בדיקה האם הסרטון כבר קיים
+    const checkQuery = "SELECT id FROM Favorites WHERE userId = ? AND videoId = ?";
 
-    db.run(query, [userId, videoId, title, thumbnailUrl], function (err) {
+    db.get(checkQuery, [userId, videoId], (err, row) => {
         if (err) {
-            console.error("Error adding favorite:", err.message);
+            console.error("Error checking favorite:", err.message);
+            return res.redirect('/search');
         }
-        // Refresh the page to show the new favorite
-        res.redirect('/search');
-    });
-};
 
-exports.removeFavorite = (req, res) => {
-    const { id } = req.body;
-    const userId = req.session.userId;
-
-    const query = `DELETE FROM Favorites WHERE id = ? AND userId = ?`;
-
-    db.run(query, [id, userId], function (err) {
-        if (err) {
-            console.error("Error removing favorite:", err.message);
+        // אם נמצאה שורה (row קיים), סימן שהסרטון כבר במועדפים
+        if (row) {
+            console.log("Video already in favorites, skipping insert.");
+            return res.redirect('/search');
         }
-        res.redirect('/search');
+
+        // שלב 2: אם לא נמצא (else), מבצעים את ההוספה
+        const insertQuery = `
+            INSERT INTO Favorites (userId, videoId, title, thumbnailUrl)
+            VALUES (?, ?, ?, ?)
+        `;
+
+        db.run(insertQuery, [userId, videoId, title, thumbnailUrl], function (err) {
+            if (err) {
+                console.error("Error adding favorite:", err.message);
+            }
+            res.redirect('/search');
+        });
     });
 };
