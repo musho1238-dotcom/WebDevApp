@@ -42,34 +42,7 @@
             </div>
         </div>
 
-        <div class="row mb-5">
-            <div class="col-12">
-                <h4 class="border-bottom pb-2 mb-3 text-success">My Saved Favorites</h4>
-            </div>
 
-            <% if (typeof favorites !=='undefined' && favorites.length> 0) { %>
-                <% favorites.forEach(function(fav) { %>
-                    <div class="col-md-3 mb-4">
-                        <div class="card h-100 shadow-sm bg-light border-success">
-                            <img src="<%= fav.thumbnailUrl %>" class="card-img-top" alt="Thumbnail">
-                            <div class="card-body">
-                                <h6 class="card-title text-truncate small">
-                                    <%= fav.title %>
-                                </h6>
-                                <form action="/favorites/remove" method="POST" class="mt-2">
-                                    <input type="hidden" name="id" value="<%= fav.id %>">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">Remove</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <% }); %>
-                        <% } else { %>
-                            <div class="col-12">
-                                <p class="text-muted">You haven't saved any videos yet.</p>
-                            </div>
-                            <% } %>
-        </div>
 
         <div class="row">
             <div class="col-12">
