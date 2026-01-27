@@ -10,10 +10,14 @@ class AuthController {
             const { email, fullName, password } = req.body;
             const user = await authService.register({ email, fullName, password });
 
-            // store minimal user in session
+            // CRITICAL FIX 1: Explicitly save userId for the favorites controller
+            req.session.userId = user.id;
+
+            // Store user details for display (e.g., "Hello, Name")
             req.session.user = { id: user.id, email: user.email, fullName: user.fullName };
 
-            res.redirect("/");
+            // CRITICAL FIX 2: Redirect directly to search, not home
+            res.redirect("/search");
         } catch (err) {
             res.status(400).render("register", { error: err.message });
         }
@@ -28,8 +32,12 @@ class AuthController {
             const { email, password } = req.body;
             const user = await authService.login({ email, password });
 
+            // CRITICAL FIX 1: Save userId here too
+            req.session.userId = user.id;
+
             req.session.user = { id: user.id, email: user.email, fullName: user.fullName };
 
+            // CRITICAL FIX 2: Redirect directly to search
             res.redirect("/search");
         } catch (err) {
             res.status(400).render("login", { error: err.message });
@@ -38,6 +46,8 @@ class AuthController {
 
     logout(req, res) {
         req.session.destroy(() => {
+            // Optional: clear the cookie for extra security
+            res.clearCookie('connect.sid');
             res.redirect("/login");
         });
     }
